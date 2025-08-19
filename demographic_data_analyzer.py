@@ -2,43 +2,61 @@ import pandas as pd
 
 
 def calculate_demographic_data(print_data=True):
-    # Read data from file
-    df = None
+    df = pd.read_csv('adult.data.csv')
+    #le o arquivo
 
-    # How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
-    race_count = None
+    race_count = df['race'].value_counts()
+    #conta o numero de ocorrecnias de cada raça
 
-    # What is the average age of men?
-    average_age_men = None
+    average_age_men = round(df[df['sex'] == 'Male']['age'].mean(), 1)
+    #filtra os homens e calcula a média de idade, arredondando para 1 casa decimal
 
-    # What is the percentage of people who have a Bachelor's degree?
-    percentage_bachelors = None
+    total_people = len(df)
+    #numero de colunas
+    bachelors_count = len(df[df['education'] == 'Bachelors'])
+    #quantas pessoas possuem o grau de escolaridade Bachelors
+    percentage_bachelors = round((bachelors_count / total_people * 100), 1)
+    #calcula porcentagem de pessoas com Bachelors, arredondando para 1 casa decimal
 
-    # What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
-    # What percentage of people without advanced education make more than 50K?
 
-    # with and without `Bachelors`, `Masters`, or `Doctorate`
-    higher_education = None
-    lower_education = None
+    higher_education_list = ['Bachelors', 'Masters', 'Doctorate']
+    #cria lista com os graus de escolaridade maiores
+    higher_education = df[df['education'].isin(higher_education_list)]
+    #cria um dataframe filtrando as pessoas com grau de escolaridade maior
+    lower_education = df[~df['education'].isin(higher_education_list)]
+    #cria um dataframe filtrando as pessoas com grau de escolaridade menor
 
-    # percentage with salary >50K
-    higher_education_rich = None
-    lower_education_rich = None
+    higher_education_rich = round((len(higher_education[higher_education['salary'] == '>50K']) / len(higher_education) * 100), 1)
+    #calcula porcentagem de pessoas com escolaridade maior que ganham mais de 50K, arredondando para 1 casa decimal
+    lower_education_rich = round((len(lower_education[lower_education['salary'] == '>50K']) / len(lower_education) * 100), 1)
+    #calcula porcentagem de pessoas com escolaridade menor que ganham mais de 50K, arredondando para 1 casa decimal
 
-    # What is the minimum number of hours a person works per week (hours-per-week feature)?
-    min_work_hours = None
+    min_work_hours = df['hours-per-week'].min()
+    #encontra o menor valor de horas trabalhadas por semana
 
-    # What percentage of the people who work the minimum number of hours per week have a salary of >50K?
-    num_min_workers = None
+    num_min_workers = len(df[df['hours-per-week'] == min_work_hours])
+    #conta quantas pessoas trabalham com o menor numero de horas por semana
+    rich_min_workers_count = len(df[(df['hours-per-week'] == min_work_hours) & (df['salary'] == '>50K')])
+    #conta quantas pessoas trabalham com o menor numero de horas por semana e ganham mais de 50K
+    rich_percentage = round((rich_min_workers_count / num_min_workers * 100), 1)
+    #calcula a porcentagem de pessoas que trabalham com o menor numero de horas por semana e ganham mais de 50K, arredondando para 1 casa decimal
 
-    rich_percentage = None
+    rich_by_country = df[df['salary'] == '>50K']['native-country'].value_counts()
+    #conta quantas pessoas ganham mais de 50K por país
+    total_by_country = df['native-country'].value_counts()
+    #conta o total de pessoa por pais
+    percentage_by_country = (rich_by_country / total_by_country * 100).sort_values(ascending=False)
+    #calcula a porcentagem de pessoas que ganham mais de 50K por país e ordena em ordem decrescente
+    
+    highest_earning_country = percentage_by_country.index[0]
+    #pega o primeiro país da lista ordenada
+    highest_earning_country_percentage = round(percentage_by_country.iloc[0], 1)
+    #pega a porcentagem do primeiro país da lista ordenada, arredondando para 1 casa decimal
 
-    # What country has the highest percentage of people that earn >50K?
-    highest_earning_country = None
-    highest_earning_country_percentage = None
-
-    # Identify the most popular occupation for those who earn >50K in India.
-    top_IN_occupation = None
+    india_rich = df[(df['native-country'] == 'India') & (df['salary'] == '>50K')]
+    #filtra o dataframe para pessoas da India que ganham mais de 50K
+    top_IN_occupation = india_rich['occupation'].mode()[0]
+    #encontra a ocupação mais comum entre as pessoas da India que ganham mais de 50K
 
     # DO NOT MODIFY BELOW THIS LINE
 
